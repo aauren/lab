@@ -178,7 +178,7 @@ func runMRCreate(cmd *cobra.Command, args []string) {
 func determineSourceRemote(branch string) string {
 	// Check if the branch is being tracked
 	r, err := gitconfig.Local("branch." + branch + ".remote")
-	if err == nil {
+	if err == nil && r != "." {
 		return r
 	}
 
