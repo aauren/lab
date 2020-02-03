@@ -122,6 +122,17 @@ func CurrentBranch() (string, error) {
 	return strings.TrimSpace(string(branch)), nil
 }
 
+// TrackingBranch returns the tracking branch of the currently checked out branch
+func TrackingBranch() (string, error) {
+	cmd := New("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+	cmd.Stdout = nil
+	branch, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(branch)), nil
+}
+
 // PathWithNameSpace returns the owner/repository for the current repo
 // Such as zaquestion/lab
 // Respects GitLab subgroups (https://docs.gitlab.com/ce/user/group/subgroups/)
