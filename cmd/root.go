@@ -222,16 +222,18 @@ var (
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	_, err := gitconfig.Local("remote.upstream.url")
-	if err == nil {
-		forkedFromRemote = "upstream"
+	trackingBranch, err := git.TrackingBranch()
+	if err != nil {
+		log.Fatalf("Encountered error while attempting to find tracking branch: %s", err)
+	}
+	// If the tracking branch contains a / then it means that we have not only the branch but also the remote
+	if strings.Contains(trackingBranch, "/") {
+		trackingSplit := strings.Split(trackingBranch, "/")
+		forkedFromRemote, trackingBranch = trackingSplit[0], trackingSplit[1]
 	}
 	if forkedFromRemote == "" {
 		// use the remote tracked by the branch if set
-		masterRemote, err := gitconfig.Local("branch.master.remote")
-		if err == nil {
-			forkedFromRemote = masterRemote
-		}
+		forkedFromRemote = determineSourceRemote(trackingBranch)
 	}
 
 	if forkedFromRemote == "origin" {
