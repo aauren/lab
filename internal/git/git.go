@@ -137,9 +137,13 @@ func TrackingBranch() (string, error) {
 // Such as zaquestion/lab
 // Respects GitLab subgroups (https://docs.gitlab.com/ce/user/group/subgroups/)
 func PathWithNameSpace(remote string) (string, error) {
-	remoteURL, err := gitconfig.Local("remote." + remote + ".url")
+	// Prefer pushurl if it exists, fallback to the common case of url
+	remoteURL, err := gitconfig.Local("remote." + remote + ".pushurl")
 	if err != nil {
-		return "", err
+		remoteURL, err = gitconfig.Local("remote." + remote + ".url")
+		if err != nil {
+			return "", err
+		}
 	}
 
 	parts := strings.Split(remoteURL, "//")
