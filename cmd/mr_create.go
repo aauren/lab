@@ -107,7 +107,11 @@ func runMRCreate(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	targetBranch := "master"
+	// Attempt to do the proper thing in finding the tracking branch, otherwise default to master
+	targetBranch, err := git.TrackingBranch()
+	if err != nil {
+		targetBranch = "master"
+	}
 	if len(args) > 1 {
 		targetBranch = args[1]
 		if !lab.BranchPushed(targetProject.ID, targetBranch) {
